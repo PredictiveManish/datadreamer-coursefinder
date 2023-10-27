@@ -1,2 +1,2 @@
 # Coursefinder
- A single plaatform to get access to all best courses of various technologies
+ A single platform to get access to all best courses of various technologies
