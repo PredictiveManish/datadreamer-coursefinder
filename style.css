@@ -16,8 +16,16 @@ header {
     color: #fff;
     text-align: center;
     padding: 20px 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Increased shadow for depth */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+/* Style the logo image */
+#logo {
+    max-width: 100%; /* Ensure the logo does not exceed its container's width */
+    height: 80px; /* Maintain the aspect ratio of the logo */
+    margin: 10px; /* Adjust margin as needed to control spacing between text and logo */
+}
+
 
 /* Style the navigation links in the footer */
 footer ul li a {
@@ -39,35 +47,42 @@ section {
     border-radius: 10px; /* Rounded corners for a modern look */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Increased shadow for depth */
     width: 80%; /* Expanding the width of the sections */
-   
 }
 
 /* Add gaps between horizontal lines (paragraphs) */
 section p {
-    margin-bottom: 100px; /* Adjust the margin to create gaps between paragraphs */
-    
+    margin-bottom: 10px; /* Adjust the margin to create gaps between paragraphs */
 }
-ul {
-    margin-bottom: 10px;
+body {
+    background-color: darkblue;
 }
 h2 {
     color: #fff;
     background-color: #333;
     padding: 10px;
-    margin: 20px 0;
+    margin: 30px 0;
     display: inline;
     border-radius: 10px;
+}
+section{
+    background-color: gray;
+    font-size: large;
 }
 
 /* Add margin to the ul elements */
 section ul {
-    margin: 10px 0;
+    margin: 20px 0;
+}
+section ul li a{
+color: black;
+text-decoration: none;
+padding: 10px;
 }
 
 /* Style the links in the navigation menu */
 nav ul li a {
     color: #333;
-    text-decoration: none;
+    
     margin-right: 15px; /* Increased margin for better spacing */
     transition: color 0.3s;
 }
