@@ -1,0 +1,150 @@
+/* Reset some default styles */
+body, h1, h2, ul {
+    margin: 0;
+    padding: 0;
+}
+
+/* Apply a background color to the body */
+body {
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+}
+
+/* Style the header */
+header {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Increased shadow for depth */
+}
+
+/* Style the navigation links in the footer */
+footer ul li a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+footer ul li a:hover {
+    color: #ffcc00; /* Yellow on hover */
+}
+
+/* Style the sections and their headings */
+section {
+    background-color: #fff;
+    padding: 40px; /* Increase padding to make sections taller */
+    margin: 20px 10%; /* Increased margin on left and right sides */
+    border: 1px solid #ddd;
+    border-radius: 10px; /* Rounded corners for a modern look */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Increased shadow for depth */
+    width: 80%; /* Expanding the width of the sections */
+   
+}
+
+/* Add gaps between horizontal lines (paragraphs) */
+section p {
+    margin-bottom: 100px; /* Adjust the margin to create gaps between paragraphs */
+    
+}
+ul {
+    margin-bottom: 10px;
+}
+h2 {
+    color: #fff;
+    background-color: #333;
+    padding: 10px;
+    margin: 20px 0;
+    display: inline;
+    border-radius: 10px;
+}
+
+/* Add margin to the ul elements */
+section ul {
+    margin: 10px 0;
+}
+
+/* Style the links in the navigation menu */
+nav ul li a {
+    color: #333;
+    text-decoration: none;
+    margin-right: 15px; /* Increased margin for better spacing */
+    transition: color 0.3s;
+}
+
+/* Footer styling */
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* Add a hover effect to navigation links */
+nav ul li a:hover {
+    color: #ffcc00;
+}
+
+/* Style the navigation links in the footer */
+footer ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+}
+
+footer ul li {
+    margin: 10px 15px; /* Increased margin for better spacing */
+}
+
+footer ul li a {
+    color: #b99b3a;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+footer ul li a:hover {
+    color: #fff;
+}
+
+/* Center the copyright notice */
+footer p {
+    margin: 20px 0;
+    color: #666;
+}
+
+/* Add styling for h3 tags */
+h3 {
+    color: #666;
+    font-weight: bold; /* Make h3 tags stand out more */
+}
+
+/* Back to Top Button */
+#back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 24px;
+    display: none;
+    transition: opacity 0.3s;
+    z-index: 999;
+}
+
+#back-to-top a {
+    text-decoration: none;
+    color: #fff;
+    background-color: #333;
+    padding: 15px 20px; /* Increased padding for a more prominent button */
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+#back-to-top a:hover {
+    background-color: #ffcc00;
+}
+
+#back-to-top.show {
+    display: block;
+    opacity: 0.7;
+}
