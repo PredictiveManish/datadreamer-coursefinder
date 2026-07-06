@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CourseFinder</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="nav-brand">
+                <img src="/static/images/logo-color.png" alt="" onerror="this.style.display='none'">
+                <h1>Course<span class="dot">/</span><span class="hl">Finder</span></h1>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" id="theme-toggle" title="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="nav-btn" id="fav-toggle" title="Favorites">
+                    <i class="fas fa-heart"></i>
+                    <span class="count" id="fav-count">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            13 categories · 60+ courses
+        </div>
+        <h2>Find the right course.<br><span class="gradient">In seconds, not hours.</span></h2>
+        <p>We've collected the best free and paid courses across every major tech topic. No more tab overload.</p>
+
+        <div class="search-wrap">
+            <div class="search-box">
+                <i class="fas fa-search icon"></i>
+                <input type="text" id="search-input" placeholder="Search courses, topics, platforms..." autocomplete="off">
+                <button class="clear" id="clear-search"><i class="fas fa-times"></i></button>
+                <span class="kbd">Ctrl+K</span>
+            </div>
+            <div class="search-filters">
+                <select id="difficulty-filter">
+                    <option value="">All Levels</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+                <label>
+                    <input type="checkbox" id="free-only">
+                    Free only
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <div class="stats">
+        <div class="stat">
+            <div class="num" id="stat-categories">0</div>
+            <div class="lbl">Categories</div>
+        </div>
+        <div class="stat">
+            <div class="num" id="stat-courses">0</div>
+            <div class="lbl">Courses</div>
+        </div>
+        <div class="stat">
+            <div class="num" id="stat-free">0</div>
+            <div class="lbl">Free Courses</div>
+        </div>
+        <div class="stat">
+            <div class="num" id="stat-favorites">0</div>
+            <div class="lbl">Your Favorites</div>
+        </div>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+
+    <main class="grid" id="grid">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading courses...</p>
+        </div>
+    </main>
+
+    <div class="overlay" id="fav-modal">
+        <div class="modal">
+            <div class="modal-top">
+                <h3><span class="heart">♥</span> Your Favorites</h3>
+                <button class="modal-close" id="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="fav-list"></div>
+        </div>
+    </div>
+
+    <button class="btt" id="btt"><i class="fas fa-arrow-up"></i></button>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div>
+                <h4>About</h4>
+                <p>CourseFinder aggregates the best courses from YouTube, Coursera, and more — all in one place. Curated by learners, for learners.</p>
+            </div>
+            <div>
+                <h4>Popular</h4>
+                <ul>
+                    <li><a href="https://www.geeksforgeeks.org/web-development/">Web Development</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/what-is-data-science/">Data Science</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/what-is-artificial-intelligence/">AI & ML</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/cyber-security-types-and-importance/">Cyber Security</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="https://www.geeksforgeeks.org/blockchain-technology-introduction/">Blockchain</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/cloud-computing/">Cloud Computing</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/robotics-introduction/">Robotics</a></li>
+                    <li><a href="https://www.geeksforgeeks.org/introduction-deep-learning/">Deep Learning</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Tech Stack</h4>
+                <ul>
+                    <li>Flask (Python)</li>
+                    <li>HTML5, CSS3, Vanilla JS</li>
+                    <li>SQLite</li>
+                    <li>Font Awesome</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2026 CourseFinder. Made with <span class="hrt">♥</span> for learners.
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
