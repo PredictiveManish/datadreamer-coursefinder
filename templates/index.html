@@ -6,6 +6,224 @@
     <title>CourseFinder</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .nav-btn.auth-btn {
+            width: auto;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-btn.auth-btn:hover {
+            background: #333;
+            color: #fff;
+        }
+        .nav-btn.user-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #6366f1;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+        .nav-btn.user-btn:hover { background: #4f46e5; }
+        .nav-btn.user-btn img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .nav-btn.user-btn .streak-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #f59e0b;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .review-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .review-modal.open { display: flex; }
+        .review-modal .modal {
+            max-width: 440px;
+        }
+        .review-modal .modal-body {
+            padding: 20px;
+        }
+        .star-rating {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 14px;
+        }
+        .star-rating .star {
+            font-size: 1.5rem;
+            color: var(--border);
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .star-rating .star.active,
+        .star-rating .star:hover {
+            color: #f59e0b;
+        }
+        .review-modal textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        .review-modal textarea:focus { border-color: #6366f1; }
+        .review-modal .submit-review {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: opacity 0.2s;
+        }
+        .review-modal .submit-review:hover { opacity: 0.85; }
+        .review-modal .submit-review:disabled { opacity: 0.5; }
+        .goal-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .goal-modal.open { display: flex; }
+        .goal-modal .modal { max-width: 400px; }
+        .goal-modal .modal-body { padding: 20px; }
+        .goal-modal select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            margin-bottom: 14px;
+        }
+        .goal-modal input[type="range"] {
+            width: 100%;
+            margin-bottom: 14px;
+        }
+        .goal-modal .goal-target-display {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+        .progress-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .progress-modal.open { display: flex; }
+        .progress-modal .modal { max-width: 400px; }
+        .progress-modal .modal-body { padding: 20px; }
+        .progress-modal .status-options {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .progress-modal .status-opt {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+        .progress-modal .status-opt:hover { border-color: var(--border-hover); }
+        .progress-modal .status-opt.active {
+            background: #6366f1;
+            color: #fff;
+            border-color: #6366f1;
+        }
+        .progress-modal input[type="range"] {
+            width: 100%;
+            margin-bottom: 14px;
+        }
+        .progress-modal .pct-display {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+        .progress-modal .submit-progress {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .progress-modal .submit-progress:hover { opacity: 0.85; }
+        .progress-modal .submit-progress:disabled { opacity: 0.5; }
+    </style>
 </head>
 <body>
     <nav class="nav">
@@ -21,6 +239,14 @@
                 <button class="nav-btn" id="fav-toggle" title="Favorites">
                     <i class="fas fa-heart"></i>
                     <span class="count" id="fav-count">0</span>
+                </button>
+                <button class="nav-btn" id="goal-btn" title="Set a learning goal">
+                    <i class="fas fa-bullseye"></i>
+                </button>
+                <button class="nav-btn auth-btn" id="auth-btn" onclick="window.location.href='/login'">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <button class="nav-btn user-btn" id="user-btn" style="display:none" title="Dashboard">
                 </button>
             </div>
         </div>
@@ -91,6 +317,63 @@
                 <button class="modal-close" id="close-modal"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="fav-list"></div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="review-modal" id="review-modal">
+        <div class="modal">
+            <div class="modal-top">
+                <h3><span class="heart">★</span> Rate this Course</h3>
+                <button class="modal-close" id="close-review"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="star-rating" id="star-rating">
+                    <span class="star" data-rating="1">★</span>
+                    <span class="star" data-rating="2">★</span>
+                    <span class="star" data-rating="3">★</span>
+                    <span class="star" data-rating="4">★</span>
+                    <span class="star" data-rating="5">★</span>
+                </div>
+                <textarea id="review-text" placeholder="What did you think? (optional)"></textarea>
+                <button class="submit-review" id="submit-review" disabled>Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Modal -->
+    <div class="progress-modal" id="progress-modal">
+        <div class="modal">
+            <div class="modal-top">
+                <h3><span class="heart">📊</span> Update Progress</h3>
+                <button class="modal-close" id="close-progress"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="status-options">
+                    <button class="status-opt" data-status="not_started">Not Started</button>
+                    <button class="status-opt" data-status="started">Started</button>
+                    <button class="status-opt" data-status="completed">Completed</button>
+                </div>
+                <input type="range" id="progress-range" min="0" max="100" value="0">
+                <div class="pct-display"><span id="pct-display">0</span>%</div>
+                <button class="submit-progress" id="submit-progress">Save Progress</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div class="goal-modal" id="goal-modal">
+        <div class="modal">
+            <div class="modal-top">
+                <h3><span class="heart">🎯</span> Set a Goal</h3>
+                <button class="modal-close" id="close-goal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <select id="goal-category"></select>
+                <input type="range" id="goal-range" min="1" max="20" value="5">
+                <div class="goal-target-display"><span id="goal-display">5</span> courses</div>
+                <button class="submit-progress" id="submit-goal">Set Goal</button>
+            </div>
         </div>
     </div>
 

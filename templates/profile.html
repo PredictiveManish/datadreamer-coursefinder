@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - CourseFinder</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+        .prof-nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .prof-nav .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .prof-nav .brand .hl { color: #6366f1; }
+        .prof-nav .back {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .prof-nav .back:hover { color: var(--text); }
+        .prof-content {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+        }
+        .prof-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .prof-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 auto 16px;
+        }
+        .prof-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .prof-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .prof-header .email {
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        .prof-header .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            background: #fef3c7;
+            color: #f59e0b;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        .prof-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .prof-section h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .prof-section h3 .icon {
+            color: #6366f1;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #6366f1;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .save-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .save-btn:hover { opacity: 0.85; }
+        .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            text-align: center;
+        }
+        .stats-row .val {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+        .stats-row .lbl {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--surface);
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 2000;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+    <nav class="prof-nav">
+        <a href="/dashboard" class="back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        <div class="brand">Course<span class="hl">/Finder</span></div>
+        <div></div>
+    </nav>
+
+    <div class="prof-content">
+        <div class="prof-header">
+            <div class="prof-avatar" id="prof-avatar"></div>
+            <h1 id="prof-name"></h1>
+            <div class="email" id="prof-email"></div>
+            <div class="badge" id="prof-badge"></div>
+        </div>
+
+        <div class="prof-section">
+            <h3><span class="icon"><i class="fas fa-chart-bar"></i></span> Your Stats</h3>
+            <div class="stats-row">
+                <div>
+                    <div class="val" id="stat-streak">0</div>
+                    <div class="lbl">Day Streak</div>
+                </div>
+                <div>
+                    <div class="val" id="stat-joined">-</div>
+                    <div class="lbl">Joined</div>
+                </div>
+                <div>
+                    <div class="val" id="stat-favs">0</div>
+                    <div class="lbl">Favorites</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="prof-section">
+            <h3><span class="icon"><i class="fas fa-user-edit"></i></span> Edit Profile</h3>
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" id="edit-name" placeholder="Your name">
+            </div>
+            <div class="form-group">
+                <label>Bio</label>
+                <textarea id="edit-bio" placeholder="Tell us about yourself..."></textarea>
+            </div>
+            <button class="save-btn" id="save-btn" onclick="saveProfile()">Save Changes</button>
+        </div>
+    </div>
+
+    <script>
+        const API = '';
+        let user = null;
+
+        async function init() {
+            try {
+                const r = await fetch(`${API}/api/auth/me`);
+                const data = await r.json();
+                if (data.logged_in) {
+                    user = data;
+                    renderProfile();
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch(e) {
+                window.location.href = '/login';
+            }
+        }
+
+        function renderProfile() {
+            const av = $('prof-avatar');
+            if (user.avatar) {
+                av.innerHTML = `<img src="${user.avatar}" alt="">`;
+            } else {
+                av.textContent = user.name.charAt(0).toUpperCase();
+            }
+            $('prof-name').textContent = user.name;
+            $('prof-email').textContent = user.email;
+            $('prof-badge').innerHTML = user.is_google
+                ? '<i class="fab fa-google"></i> Google Account'
+                : '<i class="fas fa-envelope"></i> Email Account';
+            $('stat-streak').textContent = user.streak || 0;
+            $('stat-joined').textContent = user.join_date ? user.join_date.split('T')[0] : '-';
+            $('edit-name').value = user.name;
+            $('edit-bio').value = user.bio || '';
+        }
+
+        async function saveProfile() {
+            const btn = $('save-btn');
+            btn.disabled = true;
+
+            const r = await fetch(`${API}/api/profile`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: $('edit-name').value.trim(),
+                    bio: $('edit-bio').value.trim()
+                })
+            });
+
+            const data = await r.json();
+            showToast(data.message || 'Profile updated!', '✓');
+            btn.disabled = false;
+            renderProfile();
+        }
+
+        function showToast(msg, icon = '✓') {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = `<span>${icon}</span> ${msg}`;
+            document.body.appendChild(t);
+            requestAnimationFrame(() => t.classList.add('show'));
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2000);
+        }
+
+        function $(id) { return document.getElementById(id); }
+        init();
+    </script>
+</body>
+</html>

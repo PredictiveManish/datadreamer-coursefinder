@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - CourseFinder</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        }
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .auth-card h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+        .auth-card .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: var(--bg);
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: #6366f1;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #000;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover { opacity: 0.85; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+            color: var(--text-tertiary);
+            font-size: 0.82rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .btn-google {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-google:hover { background: var(--surface-hover); }
+        .auth-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+        .auth-link a {
+            color: #6366f1;
+            font-weight: 600;
+        }
+        .error-msg {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+        .back-link {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            color: #fff;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+
+    <div class="auth-card">
+        <h2>Create account</h2>
+        <p class="subtitle">Start tracking your learning journey</p>
+
+        <div class="error-msg" id="error"></div>
+
+        <form id="register-form">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="name" required placeholder="Your name">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required placeholder="Min 6 characters">
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirm" required placeholder="Repeat password">
+            </div>
+            <button type="submit" class="btn-primary" id="submit-btn">Create Account</button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <button class="btn-google" onclick="window.location.href='/api/auth/google'">
+            <i class="fab fa-google"></i> Sign up with Google
+        </button>
+
+        <p class="auth-link">Already have an account? <a href="/login">Sign in</a></p>
+    </div>
+
+    <script>
+        const err = $('error');
+        $('register-form').onsubmit = async e => {
+            e.preventDefault();
+            err.classList.remove('show');
+            $('submit-btn').disabled = true;
+
+            const pw = $('password').value;
+            const confirm = $('confirm').value;
+            if (pw !== confirm) {
+                err.textContent = 'Passwords do not match';
+                err.classList.add('show');
+                $('submit-btn').disabled = false;
+                return;
+            }
+            if (pw.length < 6) {
+                err.textContent = 'Password must be at least 6 characters';
+                err.classList.add('show');
+                $('submit-btn').disabled = false;
+                return;
+            }
+
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: $('name').value,
+                    email: $('email').value,
+                    password: pw,
+                    confirm: confirm
+                })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                window.location.href = '/dashboard';
+            } else {
+                err.textContent = data.error;
+                err.classList.add('show');
+            }
+            $('submit-btn').disabled = false;
+        };
+    </script>
+</body>
+</html>

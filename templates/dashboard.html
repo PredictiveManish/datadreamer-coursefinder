@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CourseFinder</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+        .dash-nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .dash-nav .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .dash-nav .brand .hl { color: #6366f1; }
+        .dash-nav .user-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .dash-nav .user-area .streak {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .dash-nav .user-area .streak .fire { color: #f59e0b; }
+        .dash-nav .user-area .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #6366f1;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .dash-nav .user-area .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .logout-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .logout-btn:hover {
+            background: #fef2f2;
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+        .dash-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 32px 80px;
+        }
+        .welcome {
+            margin-bottom: 36px;
+        }
+        .welcome h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+        .welcome p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .dash-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            transition: all 0.2s;
+        }
+        .dash-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .dash-card .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 14px;
+        }
+        .dash-card .val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .dash-card .lbl {
+            font-size: 0.82rem;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.15s;
+        }
+        .progress-item:hover {
+            border-color: var(--border-hover);
+        }
+        .progress-item .emoji {
+            font-size: 1.3rem;
+            width: 36px;
+            text-align: center;
+        }
+        .progress-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .progress-item .name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .progress-item .meta {
+            font-size: 0.78rem;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+        .progress-bar-wrap {
+            width: 120px;
+            flex-shrink: 0;
+        }
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: var(--tag-bg);
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 3px;
+            background: #6366f1;
+            transition: width 0.3s;
+        }
+        .progress-item .pct {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-align: right;
+        }
+        .status-badge {
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .status-badge.not_started { background: var(--tag-bg); color: var(--tag-text); }
+        .status-badge.started { background: #eff6ff; color: #2563eb; }
+        .status-badge.completed { background: #ecfdf5; color: #10b981; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+        .empty-state .icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        .empty-state h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+        .empty-state a {
+            color: #6366f1;
+            font-weight: 600;
+        }
+        .goals-section {
+            margin-top: 40px;
+        }
+        .goal-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+        .goal-item .cat {
+            flex: 1;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .goal-item .bar-wrap {
+            width: 200px;
+        }
+        .goal-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--tag-bg);
+            overflow: hidden;
+        }
+        .goal-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            transition: width 0.3s;
+        }
+        .goal-item .goal-pct {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            min-width: 40px;
+            text-align: right;
+        }
+        .reviews-section {
+            margin-top: 40px;
+        }
+        .review-item {
+            padding: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .review-item .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .review-item .review-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .review-item .stars {
+            color: #f59e0b;
+            font-size: 0.85rem;
+        }
+        .review-item .review-text {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <nav class="dash-nav">
+        <div class="brand">Course<span class="hl">/Finder</span></div>
+        <div class="user-area">
+            <div class="streak"><span class="fire">🔥</span> <span id="streak-val">0</span> day streak</div>
+            <div class="avatar" id="user-avatar"></div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dash-content">
+        <div class="welcome">
+            <h1 id="welcome-name">Hey there 👋</h1>
+            <p>Here's your learning overview. Keep going!</p>
+        </div>
+
+        <div class="dash-grid">
+            <div class="dash-card">
+                <div class="icon" style="background:#ecfdf5;color:#10b981;">📚</div>
+                <div class="val" id="dash-completed">0</div>
+                <div class="lbl">Courses Completed</div>
+            </div>
+            <div class="dash-card">
+                <div class="icon" style="background:#eff6ff;color:#2563eb;">🔄</div>
+                <div class="val" id="dash-in-progress">0</div>
+                <div class="lbl">In Progress</div>
+            </div>
+            <div class="dash-card">
+                <div class="icon" style="background:#fef3c7;color:#f59e0b;">❤️</div>
+                <div class="val" id="dash-favorites">0</div>
+                <div class="lbl">Saved Courses</div>
+            </div>
+            <div class="dash-card">
+                <div class="icon" style="background:#f3e8ff;color:#a855f7;">⭐</div>
+                <div class="val" id="dash-reviews">0</div>
+                <div class="lbl">Reviews Written</div>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-chart-line"></i> Your Progress</div>
+        <div class="progress-list" id="progress-list">
+            <div class="empty-state">
+                <div class="icon">📊</div>
+                <h3>No progress yet</h3>
+                <p>Start a course from <a href="/">the main page</a> and track your progress here.</p>
+            </div>
+        </div>
+
+        <div class="goals-section">
+            <div class="section-title"><i class="fas fa-bullseye"></i> Your Goals</div>
+            <div id="goals-list">
+                <div class="empty-state">
+                    <div class="icon">🎯</div>
+                    <h3>No goals set</h3>
+                    <p>Set goals on the main course page to track your learning targets.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="reviews-section">
+            <div class="section-title"><i class="fas fa-star"></i> Your Reviews</div>
+            <div id="reviews-list">
+                <div class="empty-state">
+                    <div class="icon">💬</div>
+                    <h3>No reviews yet</h3>
+                    <p>Rate courses you've completed on the main page.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = '';
+        let user = null;
+
+        async function init() {
+            try {
+                const r = await fetch(`${API}/api/auth/me`);
+                const data = await r.json();
+                if (!data.logged_in) {
+                    window.location.href = '/login';
+                    return;
+                }
+                user = data;
+                setupUI();
+                await loadDashboard();
+            } catch(e) {
+                window.location.href = '/login';
+            }
+        }
+
+        function setupUI() {
+            $('welcome-name').textContent = `Hey ${user.name.split(' ')[0]} 👋`;
+            const av = $('user-avatar');
+            if (user.avatar) {
+                av.innerHTML = `<img src="${user.avatar}" alt="">`;
+            } else {
+                av.textContent = user.name.charAt(0).toUpperCase();
+            }
+            $('streak-val').textContent = user.streak || 0;
+        }
+
+        async function loadDashboard() {
+            await Promise.all([
+                loadProgress(),
+                loadFavs(),
+                loadGoals(),
+                loadReviews()
+            ]);
+        }
+
+        async function loadProgress() {
+            try {
+                const r = await fetch(`${API}/api/progress`);
+                const data = await r.json();
+                const list = $('progress-list');
+
+                const completed = data.filter(p => p.status === 'completed').length;
+                const inProgress = data.filter(p => p.status === 'started').length;
+                $('dash-completed').textContent = completed;
+                $('dash-in-progress').textContent = inProgress;
+
+                if (!data.length) return;
+
+                list.innerHTML = data.map(p => `
+                    <div class="progress-item">
+                        <div class="status-badge ${p.status}">${p.status.replace('_', ' ')}</div>
+                        <div class="info">
+                            <div class="name">${p.course_name}</div>
+                            <div class="meta">${p.category}</div>
+                        </div>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar"><div class="fill" style="width:${p.progress_pct}%"></div></div>
+                            <div class="pct">${p.progress_pct}%</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function loadFavs() {
+            try {
+                const r = await fetch(`${API}/api/favorites`);
+                const data = await r.json();
+                $('dash-favorites').textContent = data.length;
+            } catch(e) {}
+        }
+
+        async function loadGoals() {
+            try {
+                const r = await fetch(`${API}/api/goals`);
+                const data = await r.json();
+                const list = $('goals-list');
+                if (!data.length) return;
+
+                list.innerHTML = data.map(g => {
+                    const pct = Math.min(100, Math.round((g.completed_courses / g.target_courses) * 100));
+                    return `
+                        <div class="goal-item">
+                            <div class="cat">${g.category}</div>
+                            <div class="bar-wrap">
+                                <div class="goal-bar"><div class="fill" style="width:${pct}%"></div></div>
+                            </div>
+                            <div class="goal-pct">${g.completed_courses}/${g.target_courses}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) {}
+        }
+
+        async function loadReviews() {
+            try {
+                const r = await fetch(`${API}/api/reviews`);
+                const data = await r.json();
+                $('dash-reviews').textContent = data.length;
+                const list = $('reviews-list');
+                if (!data.length) return;
+
+                list.innerHTML = data.map(r => `
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-name">${r.course_name}</div>
+                            <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+                        </div>
+                        ${r.review ? `<div class="review-text">${r.review}</div>` : ''}
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        function logout() {
+            fetch(`${API}/api/auth/logout`).then(() => {
+                window.location.href = '/login';
+            });
+        }
+
+        function $(id) { return document.getElementById(id); }
+        init();
+    </script>
+</body>
+</html>

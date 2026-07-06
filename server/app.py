@@ -5,9 +5,15 @@ from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, jsonify, request, render_template, g, session, redirect, url_for
 
+# Load .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env'))
+except ImportError:
+    pass  # python-dotenv not installed, skip .env loading
+
 # Google OAuth
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from authlib.integrations.flask_client import OAuth
 
 # ===== App Setup =====
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,16 +30,27 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-oauth = OAuth(app)
+# Always define google variable so routes don't crash when keys are missing
+google = None
+google_available = False
 
 if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
-    google = oauth.register(
-        name='google',
-        client_id=GOOGLE_CLIENT_ID,
-        client_secret=GOOGLE_CLIENT_SECRET,
-        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-        client_kwargs={'scope': 'openid email profile'}
-    )
+    try:
+        from authlib.integrations.flask_client import OAuth
+        oauth = OAuth(app)
+        google = oauth.register(
+            name='google',
+            client_id=GOOGLE_CLIENT_ID,
+            client_secret=GOOGLE_CLIENT_SECRET,
+            server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+            client_kwargs={'scope': 'openid email profile'}
+        )
+        google_available = True
+    except Exception:
+        google = None
+        google_available = False
+else:
+    google_available = False
 
 # ===== Database Helpers =====
 def get_db():
@@ -256,13 +273,18 @@ def api_login():
 
 @app.route('/api/auth/google')
 def google_login():
-    if not GOOGLE_CLIENT_ID:
-        return jsonify({'error': 'Google OAuth not configured'}), 503
+    if not google_available:
+        return jsonify({
+            'error': 'Google OAuth is not configured.',
+            'message': 'To enable Google sign-in, add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env file. See README.md for setup instructions.'
+        }), 503
     redirect_uri = url_for('google_auth', _external=True)
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/api/auth/google/callback')
 def google_auth():
+    if not google_available:
+        return jsonify({'error': 'Google OAuth is not configured.'}), 503
     token = google.authorize_access_token()
     if token is None:
         return jsonify({'error': 'Google auth failed'}), 400

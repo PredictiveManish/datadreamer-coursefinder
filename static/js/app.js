@@ -2,6 +2,8 @@ const API = '';
 let courses = [];
 let favs = [];
 let cat = '';
+let user = null;
+let isLoggedIn = false;
 
 const $ = id => document.getElementById(id);
 const searchInput = $('search-input');
@@ -18,6 +20,9 @@ const favModal = $('fav-modal');
 const closeFav = $('close-modal');
 const favList = $('fav-list');
 const btt = $('btt');
+const goalBtn = $('goal-btn');
+const authBtn = $('auth-btn');
+const userBtn = $('user-btn');
 
 const ICONS = {
     'web-development': '💻', 'data-science': '📊', 'artificial-intelligence': '🤖',
@@ -37,9 +42,12 @@ const CAT_COLORS = {
 
 async function init() {
     loadTheme();
+    await checkAuth();
     await loadStats();
     await loadCourses();
-    await loadFavs();
+    if (isLoggedIn) {
+        await Promise.all([loadFavs(), loadProgress()]);
+    }
     bind();
 }
 
@@ -57,6 +65,28 @@ themeBtn.onclick = () => {
     localStorage.setItem('theme', d ? 'dark' : 'light');
     themeBtn.innerHTML = d ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
 };
+
+async function checkAuth() {
+    try {
+        const r = await fetch(`${API}/api/auth/me`);
+        const data = await r.json();
+        if (!data.logged_in) return;
+        user = data;
+        isLoggedIn = true;
+        updateAuthUI();
+    } catch(e) {}
+}
+
+function updateAuthUI() {
+    authBtn.style.display = 'none';
+    userBtn.style.display = 'flex';
+    if (user.avatar) {
+        userBtn.innerHTML = `<img src="${user.avatar}" alt="">${user.streak ? `<span class="streak-badge">🔥</span>` : ''}`;
+    } else {
+        userBtn.textContent = user.name.charAt(0).toUpperCase();
+    }
+    userBtn.onclick = () => window.location.href = '/dashboard';
+}
 
 async function loadStats() {
     try {
@@ -127,6 +157,9 @@ function render() {
 function renderRow(cr, cat) {
     const on = favs.some(f => f.course_url === cr.url);
     const diff = cr.difficulty.toLowerCase();
+    const progress = user ? getProgress(cr.url) : null;
+    const review = user ? getReview(cr.url) : null;
+
     return `
         <div class="row">
             <div class="row-info">
@@ -135,16 +168,32 @@ function renderRow(cr, cat) {
                     <span class="tag ${diff}">${cr.difficulty}</span>
                     <span class="tag source">${cr.source}</span>
                     <span class="tag ${cr.free ? 'free' : 'paid'}">${cr.free ? 'Free' : 'Paid'}</span>
+                    ${review ? `<span class="tag" style="background:#fef3c7;color:#f59e0b;">★ ${review.rating}</span>` : ''}
                 </div>
             </div>
             <div class="row-actions">
                 <button class="fav ${on ? 'on' : ''}" onclick="toggleFav('${cr.url}','${cr.name.replace(/'/g,"\\'")}','${cat}','${cr.difficulty}','${cr.source}',this)" title="${on ? 'Remove' : 'Save'}">
                     <i class="fas fa-heart"></i>
                 </button>
+                ${isLoggedIn ? `
+                    <button class="fav" onclick="openProgress('${cr.url}','${cr.name.replace(/'/g,"\\'")}','${cat}')" title="Track progress">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
+                    <button class="fav" onclick="openReview('${cr.url}','${cr.name.replace(/'/g,"\\'")}')" title="Rate course">
+                        <i class="fas fa-star"></i>
+                    </button>
+                ` : ''}
                 <a href="${cr.url}" target="_blank" class="row-link">Visit <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     `;
+}
+
+function getProgress(url) {
+    return progressData?.find(p => p.course_url === url) || null;
+}
+function getReview(url) {
+    return reviewData?.find(r => r.course_url === url) || null;
 }
 
 function renderTabs() {
@@ -163,6 +212,7 @@ function setCat(id) {
     loadCourses();
 }
 
+// ===== Favorites =====
 async function loadFavs() {
     try {
         const r = await fetch(`${API}/api/favorites`);
@@ -172,6 +222,11 @@ async function loadFavs() {
 }
 
 async function toggleFav(url, name, cat, diff, src, btn) {
+    if (!isLoggedIn) {
+        toast('Sign in to save favorites', '🔐');
+        window.location.href = '/login';
+        return;
+    }
     const on = favs.some(f => f.course_url === url);
     try {
         if (on) {
@@ -182,7 +237,7 @@ async function toggleFav(url, name, cat, diff, src, btn) {
         } else {
             const r = await fetch(`${API}/api/favorites`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ url, name, category: cat, difficulty: diff, source: src })
             });
             if (r.status === 409) { toast('Already saved', '⚠️'); return; }
@@ -202,6 +257,11 @@ function updateFavCount() {
 }
 
 favBtn.onclick = () => {
+    if (!isLoggedIn) {
+        toast('Sign in to view favorites', '🔐');
+        window.location.href = '/login';
+        return;
+    }
     favModal.classList.add('open');
     renderFavList();
 };
@@ -237,6 +297,181 @@ async function rmFav(url) {
     toast('Removed', '🗑️');
 }
 
+// ===== Progress =====
+let progressData = [];
+let selectedProgressUrl = '';
+let selectedProgressName = '';
+let selectedProgressCat = '';
+let selectedStatus = 'not_started';
+
+async function loadProgress() {
+    try {
+        const r = await fetch(`${API}/api/progress`);
+        progressData = await r.json();
+    } catch(e) {}
+}
+
+function openProgress(url, name, cat) {
+    if (!isLoggedIn) { toast('Sign in to track progress', '🔐'); return; }
+    selectedProgressUrl = url;
+    selectedProgressName = name;
+    selectedProgressCat = cat;
+    selectedStatus = 'not_started';
+
+    const existing = progressData.find(p => p.course_url === url);
+    if (existing) {
+        selectedStatus = existing.status;
+        $('progress-range').value = existing.progress_pct;
+    } else {
+        $('progress-range').value = 0;
+    }
+
+    updateProgressUI();
+    $('progress-modal').classList.add('open');
+}
+
+function updateProgressUI() {
+    document.querySelectorAll('.status-opt').forEach(b => {
+        b.classList.toggle('active', b.dataset.status === selectedStatus);
+    });
+    $('pct-display').textContent = $('progress-range').value;
+}
+
+$('progress-range').oninput = () => {
+    $('pct-display').textContent = $('progress-range').value;
+    if ($('progress-range').value == 100) selectedStatus = 'completed';
+};
+
+document.querySelectorAll('.status-opt').forEach(b => {
+    b.onclick = () => {
+        selectedStatus = b.dataset.status;
+        updateProgressUI();
+    };
+});
+
+$('submit-progress').onclick = async () => {
+    const pct = parseInt($('progress-range').value);
+    await fetch(`${API}/api/progress`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            url: selectedProgressUrl,
+            name: selectedProgressName,
+            category: selectedProgressCat,
+            status: selectedStatus,
+            progress_pct: pct
+        })
+    });
+    await loadProgress();
+    $('progress-modal').classList.remove('open');
+    toast('Progress updated!', '📊');
+    render();
+};
+
+$('close-progress').onclick = () => $('progress-modal').classList.remove('open');
+$('progress-modal').onclick = e => { if (e.target.id === 'progress-modal') e.target.classList.remove('open'); };
+
+// ===== Reviews =====
+let reviewData = [];
+let selectedRating = 0;
+let selectedReviewUrl = '';
+let selectedReviewName = '';
+
+async function loadReviews() {
+    try {
+        const r = await fetch(`${API}/api/reviews`);
+        reviewData = await r.json();
+    } catch(e) {}
+}
+
+function openReview(url, name) {
+    if (!isLoggedIn) { toast('Sign in to rate courses', '🔐'); return; }
+    selectedReviewUrl = url;
+    selectedReviewName = name;
+    selectedRating = 0;
+    $('review-text').value = '';
+
+    const existing = reviewData.find(r => r.course_url === url);
+    if (existing) {
+        selectedRating = existing.rating;
+        $('review-text').value = existing.review || '';
+    }
+
+    updateStars();
+    $('review-modal').classList.add('open');
+}
+
+document.querySelectorAll('.star-rating .star').forEach(s => {
+    s.onclick = () => {
+        selectedRating = parseInt(s.dataset.rating);
+        updateStars();
+    };
+    s.onmouseenter = () => {
+        const r = parseInt(s.dataset.rating);
+        document.querySelectorAll('.star-rating .star').forEach((star, i) => {
+            star.style.color = i < r ? '#f59e0b' : '';
+        });
+    };
+    s.onmouseleave = () => updateStars();
+});
+
+function updateStars() {
+    document.querySelectorAll('.star-rating .star').forEach((s, i) => {
+        s.classList.toggle('active', i < selectedRating);
+        s.style.color = i < selectedRating ? '#f59e0b' : '';
+    });
+    $('submit-review').disabled = selectedRating === 0;
+}
+
+$('submit-review').onclick = async () => {
+    await fetch(`${API}/api/reviews`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            url: selectedReviewUrl,
+            name: selectedReviewName,
+            rating: selectedRating,
+            review: $('review-text').value.trim()
+        })
+    });
+    await loadReviews();
+    $('review-modal').classList.remove('open');
+    toast('Review submitted!', '⭐');
+    render();
+};
+
+$('close-review').onclick = () => $('review-modal').classList.remove('open');
+$('review-modal').onclick = e => { if (e.target.id === 'review-modal') e.target.classList.remove('open'); };
+
+// ===== Goals =====
+goalBtn.onclick = () => {
+    if (!isLoggedIn) { toast('Sign in to set goals', '🔐'); return; }
+    const sel = $('goal-category');
+    sel.innerHTML = courses.map(c => `<option value="${c.id}">${c.category}</option>`).join('');
+    $('goal-range').value = 5;
+    $('goal-display').textContent = '5';
+    $('goal-modal').classList.add('open');
+};
+
+$('goal-range').oninput = () => { $('goal-display').textContent = $('goal-range').value; };
+
+$('submit-goal').onclick = async () => {
+    await fetch(`${API}/api/goals`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            category: $('goal-category').value,
+            target: parseInt($('goal-range').value)
+        })
+    });
+    $('goal-modal').classList.remove('open');
+    toast('Goal set!', '🎯');
+};
+
+$('close-goal').onclick = () => $('goal-modal').classList.remove('open');
+$('goal-modal').onclick = e => { if (e.target.id === 'goal-modal') e.target.classList.remove('open'); };
+
+// ===== Toast =====
 function toast(msg, icon = '✓') {
     const t = document.createElement('div');
     t.className = 'toast';
@@ -246,6 +481,7 @@ function toast(msg, icon = '✓') {
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2000);
 }
 
+// ===== Bind =====
 function bind() {
     let timer;
     searchInput.oninput = () => {
@@ -264,7 +500,12 @@ function bind() {
 
     document.onkeydown = e => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); searchInput.focus(); }
-        if (e.key === 'Escape') favModal.classList.remove('open');
+        if (e.key === 'Escape') {
+            favModal.classList.remove('open');
+            $('review-modal').classList.remove('open');
+            $('progress-modal').classList.remove('open');
+            $('goal-modal').classList.remove('open');
+        }
     };
 }
 
